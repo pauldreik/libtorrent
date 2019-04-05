@@ -5,6 +5,10 @@
 # running afl, locally
 # CXX="ccache afl-g++" CXXFLAGS="-O3" cmake .. -Dbuild_tests=On -Doss_fuzz_mode=Off -Denable_libfuzzer=Off -Dlink_with_main=On -GNinja
 
+# making a reproducer, also good for measuring coverage, running with valgrind/gdb
+# or just see if it crashes.
+# CXX="ccache g++" CXXFLAGS="-O3" cmake .. -Dbuild_tests=On -Doss_fuzz_mode=Off -Denable_libfuzzer=Off -Dlink_with_main=On -GNinja
+
 #this is roughly what it looks like when built through oss-fuzz:
 #LIB_FUZZING_ENGINE=/usr/lib/llvm-7/lib/libFuzzer.a CXX=clang++-7 CXXFLAGS="-fsanitize=fuzzer-no-link,address" cmake .. -Dbuild_tests=On  -Doss_fuzz_mode=On -GNinja
 
@@ -65,8 +69,10 @@ target_link_libraries(glue torrent-rasterbar)
 
 #if using afl, or making a reproducer, of some other reason that
 #means we need to provide our own main
-add_library(main OBJECT glue/slurp.cpp glue/aflmain.cpp)
-target_link_libraries(main glue)
+if(link_with_main)
+  add_library(main OBJECT glue/slurp.cpp glue/aflmain.cpp)
+  target_link_libraries(main glue)
+endif()
 
 #find all fuzzers.
 file(GLOB SOURCES "*.cpp")
