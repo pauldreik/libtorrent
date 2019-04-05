@@ -70,7 +70,7 @@ target_link_libraries(glue torrent-rasterbar)
 #if using afl, or making a reproducer, of some other reason that
 #means we need to provide our own main
 if(link_with_main)
-  add_library(main OBJECT glue/slurp.cpp glue/aflmain.cpp)
+  add_library(main OBJECT glue/slurp.cpp glue/main.cpp)
   target_link_libraries(main glue)
 endif()
 
