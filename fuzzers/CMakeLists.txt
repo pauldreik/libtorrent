@@ -2,6 +2,9 @@
 # a vanilla build for local fuzzing with libFuzzer
 # CXX="ccache clang++-7" CXXFLAGS="-O3" cmake .. -Dbuild_tests=On -Doss_fuzz_mode=Off -Denable_libfuzzer=On -GNinja
 
+# running afl, locally
+# CXX="ccache afl-g++" CXXFLAGS="-O3" cmake .. -Dbuild_tests=On -Doss_fuzz_mode=Off -Denable_libfuzzer=Off -Dlink_with_main=On -GNinja
+
 #this is roughly what it looks like when built through oss-fuzz:
 #LIB_FUZZING_ENGINE=/usr/lib/llvm-7/lib/libFuzzer.a CXX=clang++-7 CXXFLAGS="-fsanitize=fuzzer-no-link,address" cmake .. -Dbuild_tests=On  -Doss_fuzz_mode=On -GNinja
 
@@ -9,6 +12,10 @@ cmake_minimum_required(VERSION 3.12.0)
 
 project(libtorrent_fuzzers)
 
+#link in a main which reads all files given as
+#command line arguments and run them through the
+#fuzzer. Great for reproducing or if using afl.
+option(link_with_main "make fuzzers accept fil input" OFF)
 
 #are we in oss-fuzz mode?
 option(oss_fuzz_mode "oss fuzz mode" OFF)
@@ -35,6 +42,9 @@ endif()
 endif()
 
 
+if(NOT oss_fuzz_mode AND NOT enable_libfuzzer AND NOT link_with_main)
+  message(FATAL_ERROR "use one of oss_fuzz_mode, enable_libfuzzer or link_with_main, otherwise the link won't find main!")
+endif() 
 
 # step 1 - let libtorrent compile but not link with the fuzzers
 if(enable_libfuzzer)
@@ -68,6 +78,9 @@ macro(implement_fuzzer sourcefile)
   target_link_libraries(fuzzer_${basename} glue)
   if(oss_fuzz_mode)
     target_link_libraries(fuzzer_${basename} ${engine})
+  endif()
+  if(link_with_main)
+    target_link_libraries(fuzzer_${basename} main)
   endif()
 endmacro()
 
