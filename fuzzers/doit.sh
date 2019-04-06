@@ -10,7 +10,7 @@ builddir=$rootdir/fuzzers/build-localfuzzer
 #where is the corpus directory
 corpusdir=$rootdir/fuzzers/corpus
 
-#which mode to run in  (minimize or run
+#which mode to run in  (minimize or run)
 mode=minimize
 
 for fuzzer in $(ls fuzzer_* |sed -e 's/fuzzer_//') ; do
@@ -18,7 +18,7 @@ for fuzzer in $(ls fuzzer_* |sed -e 's/fuzzer_//') ; do
 
    mkdir -p out/$fuzzer
    mkdir -p $corpusdir/$fuzzer
-   export UBSAN_OPTIONS=abort_on_error=1
+   export UBSAN_OPTIONS=halt_on_error=1
 
    #running locally
    if [ $mode = run ] ; then
