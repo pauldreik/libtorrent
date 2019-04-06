@@ -2,6 +2,8 @@
 
 #run this from the build directory
 
+set -e
+
 rootdir=$(readlink -f $(dirname $0)/..)
 
 #where is the build directory
@@ -10,8 +12,10 @@ builddir=$rootdir/fuzzers/build-localfuzzer
 #where is the corpus directory
 corpusdir=$rootdir/fuzzers/corpus
 
-#which mode to run in  (minimize or run)
+#which mode to run in  (minimize|run|reproduce)
 mode=minimize
+mode=run
+mode=reproduce
 
 for fuzzer in $(ls fuzzer_* |sed -e 's/fuzzer_//') ; do
    echo $looking at fuzzer $fuzzer
@@ -32,6 +36,11 @@ for fuzzer in $(ls fuzzer_* |sed -e 's/fuzzer_//') ; do
    $builddir/fuzzer_$fuzzer -merge=1 $corpusdir/$fuzzer.tmp $corpusdir/$fuzzer out/$fuzzer
    rm -rf $corpusdir/$fuzzer
    mv $corpusdir/$fuzzer.tmp $corpusdir/$fuzzer
+   fi
+
+   #reproduce - just runs the input from the corpus
+   if [ $mode = reproduce ]; then
+   $builddir/fuzzer_$fuzzer $corpusdir/$fuzzer/*
    fi
 done
 
