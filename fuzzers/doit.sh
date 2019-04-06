@@ -6,11 +6,11 @@ set -e
 
 rootdir=$(readlink -f $(dirname $0)/..)
 
-#where is the build directory
-builddir=$rootdir/fuzzers/build-localfuzzer
-
 #where is the corpus directory
 corpusdir=$rootdir/fuzzers/corpus
+
+#where is the build dir
+builddir=$(pwd)
 
 #which mode to run in  (minimize|run|reproduce)
 mode=minimize
