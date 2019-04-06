@@ -17,7 +17,8 @@ builddir=$(pwd)
 #mode=reproduce
 #mode=runafl
 #mode=runaflcmin
-mode=runlibfuzzerinscreen
+#mode=runlibfuzzerinscreen
+mode=kcov
 
 for fuzzer in $(ls fuzzer_* |sed -e 's/fuzzer_//') ; do
     echo $looking at fuzzer $fuzzer
@@ -45,6 +46,13 @@ for fuzzer in $(ls fuzzer_* |sed -e 's/fuzzer_//') ; do
 	$builddir/fuzzer_$fuzzer $corpusdir/$fuzzer/*
     fi
 
+    #kcov
+    if [ $mode = kcov ]; then
+	mkdir -p kcovout
+	kcov kcovout --exclude-path=/usr/include $builddir/fuzzer_$fuzzer $corpusdir/$fuzzer/*
+    fi
+
+    
     #running afl in separate screen sessions
     if [ $mode = runafl ]; then
 	screen -S afl -X screen
