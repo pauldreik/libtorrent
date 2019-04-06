@@ -7,8 +7,8 @@
 
 #include "libtorrent/span.hpp"
 #include "libtorrent/string_view.hpp"
-#include <string>
 #include <cstdint>
+#include <string>
 
 struct Glue
 {
@@ -39,7 +39,13 @@ struct Glue
              static_cast<libtorrent::span<const char>::difference_type>(
                m_Size) };
   }
-  std::string getStdString() const { return {First(),Last()};}
+  std::string getStdString() const { return { First(), Last() }; }
+  std::wstring getStdWString() const
+  {
+    auto first = (const wchar_t*)m_Data;
+    auto nelems = m_Size / sizeof(*first);
+    return { first, first + nelems };
+  }
   const char* First() const { return getConstChar(); }
   const char* Last() const { return getConstChar() + m_Size; }
 };
