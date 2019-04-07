@@ -805,12 +805,19 @@ if (build_examples)
 	add_subdirectory(examples)
 endif()
 
+#Make it possible to expose the internals without building the tests.
+#It works with building the tests, but it makes the build much slower for
+#no benefit.
+feature_option(expose_internal_functions "expose internal functions, needed to build the fuzzers" OFF)
+
 # === build tests ===
 if(build_tests)
 	enable_testing()
-	# this will make some internal functions available in the DLL interface
-	target_compile_definitions(torrent-rasterbar PUBLIC TORRENT_EXPORT_EXTRA)
 	add_subdirectory(test)
+endif()
+if(build_tests OR expose_internal_functions)
+	# this will make some internal functions available in the DLL interface
+	target_compile_definitions(torrent-rasterbar PUBLIC TORRENT_EXPORT_EXTRA)  
 endif()
 
 feature_summary(DEFAULT_DESCRIPTION WHAT ALL)

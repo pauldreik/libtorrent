@@ -1,5 +1,13 @@
 #!/bin/sh
-#run this from the build directory
+#
+# This script is for running fuzzers,
+# corpus minimization and measuring coverage.
+#
+# Build the fuzzers with the specific flags
+# required for what you are about to do, then
+# execute the script from within that build directory.
+#
+# Author: Paul Dreik 
 
 set -e
 

@@ -1,16 +1,26 @@
+# This is a top level cmake file for building the fuzzers. It imports the
+# libtorrent library by including at as a subdirectory (through a file system
+# symlink). One can set flags for libtorrent just as if invoking the cmakelist
+# from libtorrent directly.
 
-# a vanilla build for local fuzzing with libFuzzer
-# CXX="ccache clang++-7" CXXFLAGS="-O3" cmake .. -Dbuild_tests=On -Doss_fuzz_mode=Off -Denable_libfuzzer=On -GNinja
+# Examples for invocation (from a build subdirectory):
 
-# running afl, locally
-# CXX="ccache afl-g++" CXXFLAGS="-O3" cmake .. -Dbuild_tests=On -Doss_fuzz_mode=Off -Denable_libfuzzer=Off -Dlink_with_main=On -GNinja
+# local fuzzing with libFuzzer:
+# CXX=clang++ cmake .. -Dexpose_internal_functions=On -Denable_libfuzzer=On
 
-# making a reproducer, also good for measuring coverage, running with valgrind/gdb
-# or just see if it crashes.
-# CXX="ccache g++" CXXFLAGS="-O3" cmake .. -Dbuild_tests=On -Doss_fuzz_mode=Off -Denable_libfuzzer=Off -Dlink_with_main=On -GNinja
+# local fuzzing with libFuzzer, using sanitizers and optimization:
+# CXX=clang++ CXXFLAGS="-O3 -fsanitize=address,undefined" cmake .. -Dexpose_internal_functions=On -Denable_libfuzzer=On
 
-#this is roughly what it looks like when built through oss-fuzz:
-#LIB_FUZZING_ENGINE=/usr/lib/llvm-7/lib/libFuzzer.a CXX=clang++-7 CXXFLAGS="-fsanitize=fuzzer-no-link,address" cmake .. -Dbuild_tests=On  -Doss_fuzz_mode=On -GNinja
+# local fuzzing with AFL:
+# CXX=afl-g++ cmake .. -Dexpose_internal_functions=On -Dlink_with_main=On 
+
+# building a reproducer, good for measuring coverage and/or using other tools
+# like valgrind or gdb. Optionally pass sanitizer flags in CXXFLAGS:
+# CXX=g++ cmake .. -Dexpose_internal_functions=On -Dlink_with_main=On
+# CXX=clang++ CXXFLAGS="-O3 -fsanitize=undefined,address" cmake .. -Dexpose_internal_functions=On -Dlink_with_main=On
+
+# this is roughly what it looks like when the fuzzers are built through oss-fuzz:
+# LIB_FUZZING_ENGINE=/usr/lib/llvm-7/lib/libFuzzer.a CXX=clang++-7 CXXFLAGS="-fsanitize=fuzzer-no-link,address" cmake .. -Dexpose_internal_functions=On  -Doss_fuzz_mode=On
 
 cmake_minimum_required(VERSION 3.12.0)
 
