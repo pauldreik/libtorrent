@@ -11,10 +11,14 @@
 
 set -e
 
+me=$(basename "$0")
 rootdir=$(readlink -f "$(dirname "$0")/..")
 
 #where is the corpus directory
 corpusdir=$rootdir/fuzzers/corpus
+
+#where is the initial corpus
+initialcorpusdir=$rootdir/fuzzers/initial_corpus
 
 #where is the build dir
 builddir=$(pwd)
@@ -26,7 +30,41 @@ builddir=$(pwd)
 #mode=runafl
 #mode=runaflcmin
 #mode=runlibfuzzerinscreen
-mode=kcov
+#mode=kcov
+mode=initialkcov
+
+usage() {
+    echo "usage: $me [options] mode"
+    echo "where options is"
+    echo "-h|--help|help show this help"
+}
+
+while [ $# -gt 0 ] ; do
+    case $1 in
+	-h|--help|help)
+	    usage
+	    exit 0
+	    ;;
+	-*)
+	    echo $me: unknown flag $1
+	    exit 1
+	    ;;
+        libfuzzerminimize|run|reproduce|runafl|runaflcmin|runlibfuzzerinscreen|kcov|initialkcov)
+	    mode=$1
+	    ;;
+	*)
+	    echo $m: unknown mode
+	    exit 1
+	    ;;
+    esac
+    shift
+done
+
+if [ -e $me ] ; then
+    echo "$me: looks like you are not in a build dir"
+    exit 1
+fi
+
 
 for fuzzer in $(ls fuzzer_* |sed -e 's/fuzzer_//') ; do
     echo $looking at fuzzer $fuzzer
@@ -58,6 +96,13 @@ for fuzzer in $(ls fuzzer_* |sed -e 's/fuzzer_//') ; do
     if [ $mode = kcov ]; then
 	mkdir -p kcovout
 	kcov kcovout --exclude-path=/usr/include $builddir/fuzzer_$fuzzer $corpusdir/$fuzzer/*
+    fi
+    #measuring initial corpus coverage
+    if [ $mode = initialkcov ]; then
+	mkdir -p kcovoutinitial
+	if [ -d $initialcorpusdir/$fuzzer/ ] ; then
+	    kcov kcovoutinitial --exclude-path=/usr $builddir/fuzzer_$fuzzer $initialcorpusdir/$fuzzer/*
+	fi
     fi
 
     
