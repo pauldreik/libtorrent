@@ -30,6 +30,12 @@ dobuild() {
     $CMAKE --build .
 }
 
+# emulating what it looks like when building through oss-fuzz
+export LIB_FUZZING_ENGINE=-fsanitize=fuzzer
+dobuild build-ossfuzz-emulation-2019 clang++-7 "-fsanitize=fuzzer-no-link,address" \
+	-Doss_fuzz_mode=On -DBUILD_SHARED_LIBS=Off
+unset LIB_FUZZING_ENGINE
+
 # local fuzzing with libfuzzer (good for speedy exploration)
 dobuild build-libfuzzer-plain clang++ -O3  -Denable_libfuzzer=On
 
